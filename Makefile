@@ -4,6 +4,7 @@ FORCE: ;
 
 SHELL  := env LIBRARY_ENV=$(LIBRARY_ENV) $(SHELL)
 LIBRARY_ENV ?= dev
+CGO_ENABLED=0
 
 BIN_DIR = $(PWD)/bin
 
@@ -18,11 +19,8 @@ dependencies:
 build: dependencies build-api
 
 build-api: 
-	go build -tags $(LIBRARY_ENV) -o ./bin/api api/main.go
-	docker build -t stonktendency-api .
-
-linux-binaries:
 	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -tags "$(LIBRARY_ENV) netgo" -installsuffix netgo -o $(BIN_DIR)/api api/main.go
+	docker build -t stonktendency-api .
 
 ci: dependencies test
 

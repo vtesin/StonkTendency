@@ -42,8 +42,9 @@ services:
       timeout: 10s
       retries: 3
     restart: unless-stopped
-  stonkstendencyapi:
+  stonktendencyapi:
     image: stonktendency-api:latest
+    container_name: stonktendency-api
     networks: 
       - mongodb_network
     ports: 
