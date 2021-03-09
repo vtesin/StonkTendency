@@ -1,10 +1,8 @@
-// +build dev
-
 package config
 
 const (
 	// DbHost - database host (document)
-	DbHost = "10.10.10.60"
+	DbHost = "mongodb"
 	// DbUser - user for mongo
 	DbUser = "root"
 	// DbPassword - password for mongo

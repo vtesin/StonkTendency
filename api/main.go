@@ -22,13 +22,22 @@ import (
 )
 
 func main() {
-	fmt.Print("1")
-	dataSourceName := fmt.Sprintf("mongodb://%s:%s@%s:%s", config.DbUser, config.DbPassword, config.DbHost, config.DbPort)
+	dataSourceName := fmt.Sprintf("mongodb://%s:%s@%s:%d", config.DbUser, config.DbPassword, config.DbHost, config.DbPort)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dataSourceName))
-	fmt.Print("2")
+
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	defer func() {
+		if err = client.Disconnect(ctx); err != nil {
+			log.Fatal(err.Error())
+		}
+	}()
+
 	tickerRepo := repository.NewTickerMongo(client)
 	tickerService := ticker.NewService(tickerRepo)
 
@@ -46,7 +55,6 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	fmt.Print("3")
 	logger := log.New(os.Stderr, "logger: ", log.Lshortfile)
 	srv := &http.Server{
 		ReadTimeout:  5 * time.Second,
@@ -56,7 +64,6 @@ func main() {
 		ErrorLog:     logger,
 	}
 
-	fmt.Print("4")
 	err = srv.ListenAndServe()
 
 	if err != nil {

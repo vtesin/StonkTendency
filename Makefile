@@ -19,7 +19,6 @@ dependencies:
 build: dependencies build-api
 
 build-api: 
-	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -tags "$(LIBRARY_ENV) netgo" -installsuffix netgo -o $(BIN_DIR)/api api/main.go
 	docker build -t stonktendency-api .
 
 ci: dependencies test

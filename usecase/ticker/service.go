@@ -23,8 +23,11 @@ func (s *Service) CreateStonk(symbol string, sentiment float32) error {
 
 	t.Sentiment = 0.0
 
-	// TODO add sentiment analysis and store it in Mongo
-	return nil
+	// TODO add sentiment analysis and store it in Mongo (upsert)
+
+	err = s.repo.Update(t)
+
+	return err
 }
 
 // GetStonk Find a ticker

@@ -13,7 +13,7 @@ services:
     ports: 
       - 27017:27017
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo 10.10.10.60:27017/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongo 127.0.0.1:27017/test --quiet
       interval: 30s
       timeout: 10s
       retries: 3
@@ -37,7 +37,7 @@ services:
     ports:
     - 8081:8081
     healthcheck:
-      test:  wget --quiet --tries=3 --spider http://admin:admin123@10.10.10.60:8081 || exit 1
+      test:  wget --quiet --tries=3 --spider http://admin:admin123@127.0.0.1:8081 || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
@@ -45,10 +45,17 @@ services:
   stonktendencyapi:
     image: stonktendency-api:latest
     container_name: stonktendency-api
+    build: .
+    security_opt:
+      - seccomp:unconfined
+    entrypoint: dlv debug /opt/go/src/local/stonktendency/api -l 0.0.0.0:2345 --continue --accept-multiclient --api-version 2 --headless=true --log=true -- server
     networks: 
       - mongodb_network
     ports: 
       - 8080:8080
+      - 2345:2345
+    expose: 
+      - 2345
 volumes:
   mongodb-data:
     name: mongodb-data

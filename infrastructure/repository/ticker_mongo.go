@@ -2,12 +2,14 @@ package repository
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/vtesin/StonkTendency/config"
 	"github.com/vtesin/StonkTendency/entity"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // TickerMongo mongo client
@@ -37,6 +39,34 @@ func (r *TickerMongo) Create(t *entity.Ticker) error {
 
 // Update Update a ticker
 func (r *TickerMongo) Update(t *entity.Ticker) error {
+	collection := r.db.Database(config.DbName).Collection(config.DbCollection)
+
+	// find the document for which the _id field matches id
+	// specify the Sort option to sort the documents by age
+	// the first document in the sorted order will be returned
+	opts := options.Update().SetUpsert(true)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.D{{"Symbol", t.Symbol}}
+	update := bson.D{{"$set", bson.D{{"Symbol", t.Symbol}, {"Sentiment", t.Sentiment}, {"Timestamp", t.Timestamp}}}}
+
+	result, err := collection.UpdateOne(ctx, filter, update, opts)
+
+	if err != nil {
+		log.Printf("%v", err)
+		return err
+	}
+
+	if result.MatchedCount != 0 {
+		log.Printf("matched and replaced an existing document")
+		return nil
+	}
+	if result.UpsertedCount != 0 {
+		log.Printf("inserted a new document with ID %v\n", result.UpsertedID)
+	}
+
 	return nil
 }
 
