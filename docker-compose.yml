@@ -56,6 +56,8 @@ services:
       - 2345:2345
     expose: 
       - 2345
+    environment: 
+      - BEARER_TOKEN=${BEARER_TOKEN}
 volumes:
   mongodb-data:
     name: mongodb-data

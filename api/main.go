@@ -12,10 +12,12 @@ import (
 	"github.com/codegangsta/negroni"
 	gcontext "github.com/gorilla/context"
 	"github.com/gorilla/mux"
+	"github.com/jonreiter/govader"
 	"github.com/vtesin/StonkTendency/api/handler"
 	"github.com/vtesin/StonkTendency/api/middleware"
 	"github.com/vtesin/StonkTendency/config"
 	"github.com/vtesin/StonkTendency/infrastructure/repository"
+	"github.com/vtesin/StonkTendency/usecase/sentiment"
 	"github.com/vtesin/StonkTendency/usecase/ticker"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -38,8 +40,15 @@ func main() {
 		}
 	}()
 
+	twitter := sentiment.NewTwitter("https://api.twitter.com/2/tweets/search/recent?query=%23$symbol%20-is:retweet&tweet.fields=created_at,author_id,lang&max_results=100", "$symbol", 100)
+	analyzer := govader.NewSentimentIntensityAnalyzer()
+	sources := make([]*sentiment.Source, 1)
+	sources[0] = &twitter.Source
+
 	tickerRepo := repository.NewTickerMongo(client)
-	tickerService := ticker.NewService(tickerRepo)
+	sentimentService := sentiment.NewService(sources, analyzer)
+
+	tickerService := ticker.NewService(tickerRepo, sentimentService)
 
 	r := mux.NewRouter()
 	//handlers

@@ -77,7 +77,28 @@ func (r *TickerMongo) Delete(symbol string) error {
 
 // Get a disctinct ticker
 func (r *TickerMongo) Get(symbol string) (*entity.Ticker, error) {
-	return nil, nil
+	collection := r.db.Database(config.DbName).Collection(config.DbCollection)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.D{{"Symbol", symbol}}
+
+	res := collection.FindOne(ctx, filter)
+
+	if res.Err() != nil {
+		log.Printf("%v", res.Err())
+		return nil, res.Err()
+	}
+
+	var t entity.Ticker
+	err := res.Decode(&t)
+
+	if err != nil {
+		log.Printf("%v", err)
+		return nil, err
+	}
+
+	return &t, nil
 }
 
 // Search Find a particular ticker satisfying a query

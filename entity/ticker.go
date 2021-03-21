@@ -5,7 +5,7 @@ import "time"
 // Ticker data
 type Ticker struct {
 	Symbol    string
-	Sentiment float32
+	Sentiment float64
 	Timestamp time.Time
 }
 

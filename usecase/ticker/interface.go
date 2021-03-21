@@ -27,7 +27,7 @@ type UseCase interface {
 	GetStonk(symbol string) (*entity.Ticker, error)
 	SearchStonks(query string) ([]*entity.Ticker, error)
 	ListStonks() ([]*entity.Ticker, error)
-	CreateStonk(symbol string, sentiment float32) error
+	CreateStonk(symbol string, sentiment float64) error
 	UpdateStonk(t *entity.Ticker) error
 	DeleteStonk(symbol string) error
 }
