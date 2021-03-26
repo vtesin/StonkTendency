@@ -102,6 +102,9 @@ func (t *Source) Visit(symbol string, a *govader.SentimentIntensityAnalyzer) (fl
 		sentimentCount++
 		totalCompound += score.Compound
 	}
+
+	req.Close = true
+
 	// TODO add next token handling
 	return totalCompound / float64(sentimentCount), nil
 }
