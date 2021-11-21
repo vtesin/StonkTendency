@@ -8,5 +8,7 @@ ADD . /opt/go/src/local/stonktendency
 WORKDIR /opt/go/src/local/stonktendency
 
 RUN go get github.com/go-delve/delve/cmd/dlv
+RUN go mod download golang.org/x/sync
+RUN go mod download golang.org/x/text
 RUN go build -a -installsuffix cgo -tags "$LIBRARY_ENV netgo" -installsuffix netgo -o api/main api/main.go
 CMD ["api/main"]
